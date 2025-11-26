@@ -1,0 +1,19 @@
+[package]
+name = "cli-assert"
+version = "0.0.0"
+authors = ["Dariusz Depta <depta@engos.de>"]
+description = "Testing command-line applications"
+documentation = "https://docs.rs/cli-assert"
+repository = "https://github.com/EngosSoftware/biff.git"
+keywords = ["testing", "command", "line", "applications"]
+categories = ["development-tools::testing"]
+license = "MIT OR Apache-2.0"
+edition = "2021"
+exclude = [
+    "rustfmt.toml",
+    "Taskfile.yml",
+    ".github/",
+    ".gitignore"
+]
+
+[dependencies]
