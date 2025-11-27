@@ -1,6 +1,7 @@
 use crate::utils::PathExt;
 use std::borrow::Cow;
 use std::ffi::{OsStr, OsString};
+use std::io::Write;
 use std::path::{Path, PathBuf};
 use std::process::{Child, ExitStatus};
 
@@ -13,6 +14,8 @@ pub struct Command {
   current_dir: PathBuf,
   /// Child process.
   child: Option<Child>,
+  /// The raw content to be written to stdin of the child process.
+  stdin: Option<Vec<u8>>,
   /// The raw content of the stdout of the child process.
   stdout: Vec<u8>,
   /// The raw content of the stderr of the child process.
@@ -50,6 +53,7 @@ impl Command {
       program_args: vec![],
       current_dir,
       child: None,
+      stdin: None,
       stdout: vec![],
       stderr: vec![],
       status: ExitStatus::default(),
@@ -83,6 +87,11 @@ impl Command {
     self
   }
 
+  pub fn stdin(mut self, bytes: impl AsRef<[u8]>) -> Self {
+    self.stdin = Some(bytes.as_ref().to_vec());
+    self
+  }
+
   pub fn stdout(mut self, bytes: impl AsRef<[u8]>) -> Self {
     self.expected_stdout = Some(bytes.as_ref().to_vec());
     self
@@ -95,15 +104,19 @@ impl Command {
 
   pub fn spawn(&mut self) {
     let mut command = std::process::Command::new(self.program.clone());
-    self.child = Some(
-      command
-        .args(self.program_args.clone())
-        .current_dir(self.current_dir.clone())
-        .stdout(std::process::Stdio::piped())
-        .stderr(std::process::Stdio::piped())
-        .spawn()
-        .expect("failed to spawn requested command"),
-    );
+    let mut child = command
+      .args(self.program_args.clone())
+      .current_dir(self.current_dir.clone())
+      .stdin(std::process::Stdio::piped())
+      .stdout(std::process::Stdio::piped())
+      .stderr(std::process::Stdio::piped())
+      .spawn()
+      .expect("failed to spawn requested command");
+    if let Some(bytes) = &self.stdin {
+      let mut stdin = child.stdin.take().expect("failed to obtain the stdin handle");
+      stdin.write_all(bytes).expect("failed to write stdin");
+    }
+    self.child = Some(child);
   }
 
   pub fn wait(&mut self) {
@@ -173,7 +186,7 @@ impl Command {
         expected, actual
       );
     }
-    if let Some(expected) = self.expected_stdout.as_ref() {
+    if let Some(expected) = &self.expected_stdout {
       let actual = self.get_stdout_raw();
       assert_eq!(
         expected, actual,
@@ -181,7 +194,7 @@ impl Command {
         expected, actual
       )
     }
-    if let Some(expected) = self.expected_stderr.as_ref() {
+    if let Some(expected) = &self.expected_stderr {
       let actual = self.get_stderr_raw();
       assert_eq!(
         expected, actual,
