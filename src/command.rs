@@ -37,9 +37,8 @@ pub struct Command {
 impl Command {
   pub fn new(program: impl AsRef<OsStr>, caller_file: impl AsRef<str>, manifest_dir: impl AsRef<str>) -> Self {
     let manifest_path = Path::new(manifest_dir.as_ref());
-    let caller_path = Path::new(caller_file.as_ref())
-      .parent()
-      .expect("failed to retrieve parent directory for caller file");
+    let caller_path = Path::new(caller_file.as_ref()).parent().unwrap();
+    // .expect("failed to retrieve parent directory for caller file");
     let current_dir = match manifest_path.rem(caller_path) {
       None => caller_path.into(),
       Some(path_buf) => {
