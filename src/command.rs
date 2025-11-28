@@ -115,9 +115,10 @@ impl Command {
       .stdout(std::process::Stdio::piped())
       .stderr(std::process::Stdio::piped())
       .spawn()
-      .expect("failed to spawn requested command");
+      .unwrap();
+    //.expect("failed to spawn requested command");
     if let Some(bytes) = &self.stdin {
-      let mut stdin = child.stdin.take().expect("failed to obtain the stdin handle");
+      let mut stdin = child.stdin.take().unwrap(); //.expect("failed to obtain the stdin handle");
       stdin.write_all(bytes).expect("failed to write stdin");
     }
     self.child = Some(child);
@@ -125,9 +126,8 @@ impl Command {
 
   pub fn wait(&mut self) {
     if let Some(child) = self.child.take() {
-      let output = child
-        .wait_with_output()
-        .expect("failed during waiting for a child process");
+      let output = child.wait_with_output().unwrap();
+      // .expect("failed during waiting for a child process");
       self.stdout = output.stdout;
       self.stderr = output.stderr;
       self.status = output.status;
@@ -144,7 +144,7 @@ impl Command {
 
   pub fn stop(&mut self) {
     if let Some(child) = &mut self.child {
-      child.kill().expect("failed to force a child process to stop");
+      child.kill().unwrap(); //.expect("failed to force a child process to stop");
     } else {
       panic!("command is not spawned");
     }
