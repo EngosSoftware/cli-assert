@@ -25,7 +25,7 @@ macro_rules! cargo_binary {
   };
 }
 
-/// Returns a new command-line command.
+/// Returns a new command-line command for executing tested application.
 #[macro_export]
 macro_rules! command {
   () => {
@@ -33,5 +33,13 @@ macro_rules! command {
   };
   ($name:expr) => {
     $crate::Command::new($crate::cargo_binary!($name), file!(), $crate::cargo_manifest_dir!())
+  };
+}
+
+/// Returns a new command-line command for any application.
+#[macro_export]
+macro_rules! cmd {
+  ($name:expr) => {
+    $crate::Command::new($name, file!(), $crate::cargo_manifest_dir!())
   };
 }

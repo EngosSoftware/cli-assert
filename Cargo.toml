@@ -1,6 +1,6 @@
 [package]
 name = "cli-assert"
-version = "0.1.1"
+version = "0.1.2"
 authors = ["Dariusz Depta <depta@engos.de>"]
 description = "Testing command-line applications"
 documentation = "https://docs.rs/cli-assert"
