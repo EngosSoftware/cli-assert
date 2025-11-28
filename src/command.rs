@@ -67,6 +67,11 @@ impl Command {
     }
   }
 
+  pub fn current_dir(mut self, dir: impl AsRef<Path>) -> Self {
+    self.current_dir = dir.as_ref().into();
+    self
+  }
+
   pub fn arg(mut self, arg: impl AsRef<OsStr>) -> Self {
     self.program_args.push(arg.as_ref().into());
     self
