@@ -35,11 +35,13 @@ pub struct Command {
 }
 
 impl Command {
-  pub fn new(program: impl AsRef<OsStr>, caller: &str, dir: &str) -> Self {
-    let dir = Path::new(dir);
-    let caller = Path::new(caller).parent().expect("failed to retrieve parent directory");
-    let current_dir = match dir.rem(caller) {
-      None => caller.into(),
+  pub fn new(program: impl AsRef<OsStr>, caller_file: impl AsRef<str>, manifest_dir: impl AsRef<str>) -> Self {
+    let manifest_path = Path::new(manifest_dir.as_ref());
+    let caller_path = Path::new(caller_file.as_ref())
+      .parent()
+      .expect("failed to retrieve parent directory for caller file");
+    let current_dir = match manifest_path.rem(caller_path) {
+      None => caller_path.into(),
       Some(path_buf) => {
         if path_buf.components().count() == 0 {
           PathBuf::from(".")
@@ -103,6 +105,9 @@ impl Command {
   }
 
   pub fn spawn(&mut self) {
+    if self.child.is_some() {
+      panic!("command is already spawned");
+    }
     let mut command = std::process::Command::new(self.program.clone());
     let mut child = command
       .args(self.program_args.clone())
@@ -128,6 +133,8 @@ impl Command {
       self.stderr = output.stderr;
       self.status = output.status;
       self.assert();
+    } else {
+      panic!("command is not spawned");
     }
   }
 
@@ -139,6 +146,8 @@ impl Command {
   pub fn stop(&mut self) {
     if let Some(child) = &mut self.child {
       child.kill().expect("failed to force a child process to stop");
+    } else {
+      panic!("command is not spawned");
     }
   }
 
