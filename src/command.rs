@@ -37,8 +37,9 @@ pub struct Command {
 impl Command {
   pub fn new(program: impl AsRef<OsStr>, caller_file: impl AsRef<str>, manifest_dir: impl AsRef<str>) -> Self {
     let manifest_path = Path::new(manifest_dir.as_ref());
-    let caller_path = Path::new(caller_file.as_ref()).parent().unwrap();
-    // .expect("failed to retrieve parent directory for caller file");
+    let caller_path = Path::new(caller_file.as_ref())
+      .parent()
+      .expect("failed to retrieve parent directory for caller file");
     let current_dir = match manifest_path.rem(caller_path) {
       None => caller_path.into(),
       Some(path_buf) => {
@@ -115,26 +116,21 @@ impl Command {
       .stdout(std::process::Stdio::piped())
       .stderr(std::process::Stdio::piped())
       .spawn()
-      .unwrap();
-    //.expect("failed to spawn requested command");
+      .expect("failed to spawn requested command");
     if let Some(bytes) = &self.stdin {
-      let mut stdin = child.stdin.take().unwrap(); //.expect("failed to obtain the stdin handle");
-      stdin.write_all(bytes).expect("failed to write stdin");
+      let mut stdin = child.stdin.take().expect("failed to obtain child process stdin");
+      stdin.write_all(bytes).expect("failed to write child process stdin");
     }
     self.child = Some(child);
   }
 
   pub fn wait(&mut self) {
-    if let Some(child) = self.child.take() {
-      let output = child.wait_with_output().unwrap();
-      // .expect("failed during waiting for a child process");
-      self.stdout = output.stdout;
-      self.stderr = output.stderr;
-      self.status = output.status;
-      self.assert();
-    } else {
-      panic!("command is not spawned");
-    }
+    let child = self.child.take().expect("command is not spawned");
+    let output = child.wait_with_output().expect("failed to obtain child process output");
+    self.stdout = output.stdout;
+    self.stderr = output.stderr;
+    self.status = output.status;
+    self.assert();
   }
 
   pub fn execute(&mut self) {
@@ -144,7 +140,7 @@ impl Command {
 
   pub fn stop(&mut self) {
     if let Some(child) = &mut self.child {
-      child.kill().unwrap(); //.expect("failed to force a child process to stop");
+      child.kill().expect("failed to force a child process to stop");
     } else {
       panic!("command is not spawned");
     }
@@ -181,34 +177,35 @@ impl Command {
   /// Checks all assertions.
   fn assert(&self) {
     if let Some(true) = self.expected_success {
-      assert!(self.status.success(), "expected success");
+      if !self.status.success() {
+        panic!("expected success");
+      }
     }
     if let Some(true) = self.expected_failure {
-      assert!(!self.status.success(), "expected failure");
+      if self.status.success() {
+        panic!("expected failure");
+      }
     }
     if let Some(expected) = self.expected_status {
       let actual = self.status.code().expect("failed to retrieve status code");
-      assert_eq!(
-        expected, actual,
-        "\nexpected status code: {}\n  actual status code: {}",
-        expected, actual
-      );
+      if actual != expected {
+        println!("\nexpected status code: {}\n  actual status code: {}", expected, actual);
+        panic!("unexpected status");
+      }
     }
     if let Some(expected) = &self.expected_stdout {
       let actual = self.get_stdout_raw();
-      assert_eq!(
-        expected, actual,
-        "\nexpected stdout: {:?}\n  actual stdout: {:?}",
-        expected, actual
-      )
+      if actual != expected {
+        println!("\nexpected stdout: {:?}\n  actual stdout: {:?}", expected, actual);
+        panic!("unexpected stdout");
+      }
     }
     if let Some(expected) = &self.expected_stderr {
       let actual = self.get_stderr_raw();
-      assert_eq!(
-        expected, actual,
-        "\nexpected stderr: {:?}\n  actual stderr: {:?}",
-        expected, actual
-      )
+      if actual != expected {
+        println!("\nexpected stderr: {:?}\n  actual stderr: {:?}", expected, actual);
+        panic!("unexpected stderr");
+      }
     }
   }
 }
