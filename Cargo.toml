@@ -1,6 +1,6 @@
 [package]
 name = "cli-assert"
-version = "0.1.8"
+version = "0.1.9"
 authors = ["Dariusz Depta <depta@engos.de>"]
 description = "Testing command-line applications"
 documentation = "https://docs.rs/cli-assert"
@@ -17,4 +17,4 @@ exclude = [
 ]
 
 [dependencies]
-tempfile = "3.23.0"
+tempfile = "3.24.0"

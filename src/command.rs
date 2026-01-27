@@ -1,4 +1,4 @@
-use crate::utils::PathExt;
+use crate::utils::{bytes_to_str, PathExt};
 use std::borrow::Cow;
 use std::ffi::{OsStr, OsString};
 use std::io::Write;
@@ -202,6 +202,7 @@ impl Command {
       let actual = self.get_stdout_raw();
       if actual != expected {
         println!("\nexpected stdout: {:?}\n  actual stdout: {:?}", expected, actual);
+        println!("\n\nexpected stdout: {}\n  actual stdout: {}", bytes_to_str(expected), bytes_to_str(expected));
         panic!("unexpected stdout");
       }
     }
@@ -209,6 +210,7 @@ impl Command {
       let actual = self.get_stderr_raw();
       if actual != expected {
         println!("\nexpected stderr: {:?}\n  actual stderr: {:?}", expected, actual);
+        println!("\n\nexpected stderr: {}\n  actual stderr: {}", bytes_to_str(expected), bytes_to_str(actual));
         panic!("unexpected stderr");
       }
     }

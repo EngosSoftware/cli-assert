@@ -28,3 +28,12 @@ pub fn sleep(millis: u64) {
     std::thread::sleep(std::time::Duration::from_millis(millis));
   }
 }
+
+/// Converts UTF-8 bytes to string.
+pub fn bytes_to_str(bytes: impl AsRef<[u8]>) -> String {
+  let mut s = String::from_utf8(bytes.as_ref().to_vec()).unwrap();
+  if s.is_empty() {
+    s = "(empty)".to_string();
+  }
+  s
+}
