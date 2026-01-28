@@ -202,7 +202,7 @@ impl Command {
       let actual = self.get_stdout_raw();
       if actual != expected {
         println!("\nexpected stdout: {:?}\n  actual stdout: {:?}", expected, actual);
-        println!("\n\nexpected stdout: {}\n  actual stdout: {}", bytes_to_str(expected), bytes_to_str(expected));
+        println!("\n\nexpected stdout: {}\n  actual stdout: {}", bytes_to_str(expected), bytes_to_str(actual));
         panic!("unexpected stdout");
       }
     }
