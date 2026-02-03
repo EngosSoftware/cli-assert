@@ -108,15 +108,15 @@ impl Command {
       .spawn()
       .expect("failed to spawn requested command");
     if let Some(bytes) = &self.stdin {
-      let mut stdin = child.stdin.take().unwrap();
-      stdin.write_all(bytes).unwrap();
+      let mut stdin = child.stdin.take().expect("failed to obtain child process stdin");
+      stdin.write_all(bytes).expect("failed to write child process stdin");
     }
     self.child = Some(child);
   }
 
   pub fn wait(&mut self) {
     let child = self.child.take().expect("command is not spawned");
-    let output = child.wait_with_output().unwrap();
+    let output = child.wait_with_output().expect("failed to obtain child process output");
     self.stdout = output.stdout;
     self.stderr = output.stderr;
     self.status = output.status;
@@ -130,7 +130,7 @@ impl Command {
 
   pub fn stop(&mut self) {
     if let Some(child) = &mut self.child {
-      child.kill().unwrap();
+      child.kill().expect("failed to force a child process to stop");
     } else {
       panic!("command is not spawned");
     }
