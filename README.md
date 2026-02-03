@@ -14,7 +14,7 @@
 
 [crates-badge]: https://img.shields.io/crates/v/cli-assert.svg
 [crates-url]: https://crates.io/crates/cli-assert
-[cov-badge]: https://img.shields.io/badge/coverage-0%25-21b577.svg
+[cov-badge]: https://img.shields.io/badge/coverage-99%25%20%E2%94%82%20100%25%20%E2%94%82%2099%25-21b577.svg
 [cov-url]: https://crates.io/crates/coverio
 [build-badge-linux]: https://github.com/EngosSoftware/cli-assert/actions/workflows/build-linux.yml/badge.svg
 [build-badge-windows]: https://github.com/EngosSoftware/cli-assert/actions/workflows/build-windows.yml/badge.svg
