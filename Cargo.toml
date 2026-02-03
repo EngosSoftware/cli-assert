@@ -1,6 +1,6 @@
 [package]
 name = "cli-assert"
-version = "0.1.10"
+version = "0.1.11"
 authors = ["Dariusz Depta <depta@engos.de>"]
 description = "Testing command-line applications"
 documentation = "https://docs.rs/cli-assert"
@@ -13,7 +13,8 @@ exclude = [
     "rustfmt.toml",
     "Taskfile.yml",
     ".github/",
-    ".gitignore"
+    ".gitignore",
+    "CODE_OF_CONDUCT.md"
 ]
 
 [dependencies]

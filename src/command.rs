@@ -1,5 +1,5 @@
 use crate::assertions::Assertions;
-use crate::utils::{bytes_to_str, PathExt};
+use crate::utils::PathExt;
 use std::borrow::Cow;
 use std::ffi::{OsStr, OsString};
 use std::io::Write;
@@ -22,8 +22,8 @@ pub struct Command {
   /// The raw content of the stderr of the child process.
   stderr: Vec<u8>,
   /// Execution status of the child process.
-  pub(crate) status: ExitStatus,
-  /// Assertions to be met after executing this command.
+  status: ExitStatus,
+  /// Assertions to be checked after executing this command.
   assertions: Assertions,
 }
 
@@ -69,8 +69,29 @@ impl Command {
     self
   }
 
-  pub fn expect(&mut self) -> &mut Assertions {
-    &mut self.assertions
+  pub fn success(mut self) -> Self {
+    self.assertions.success();
+    self
+  }
+
+  pub fn failure(mut self) -> Self {
+    self.assertions.failure();
+    self
+  }
+
+  pub fn code(mut self, code: i32) -> Self {
+    self.assertions.code(code);
+    self
+  }
+
+  pub fn stdout(mut self, bytes: impl AsRef<[u8]>) -> Self {
+    self.assertions.stdout(bytes);
+    self
+  }
+
+  pub fn stderr(mut self, bytes: impl AsRef<[u8]>) -> Self {
+    self.assertions.stderr(bytes);
+    self
   }
 
   pub fn spawn(&mut self) {
