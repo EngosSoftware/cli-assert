@@ -1,3 +1,4 @@
+use crate::assertions::Assertions;
 use crate::utils::{bytes_to_str, PathExt};
 use std::borrow::Cow;
 use std::ffi::{OsStr, OsString};
@@ -21,25 +22,15 @@ pub struct Command {
   /// The raw content of the stderr of the child process.
   stderr: Vec<u8>,
   /// Execution status of the child process.
-  status: ExitStatus,
-  /// Flag indicating if the command is expected to complete successfully.
-  expected_success: Option<bool>,
-  /// Flag indicating if the command is expected to fail.
-  expected_failure: Option<bool>,
-  /// Expected status code.
-  expected_status: Option<i32>,
-  /// Expected stdout.
-  expected_stdout: Option<Vec<u8>>,
-  /// Expected stderr.
-  expected_stderr: Option<Vec<u8>>,
+  pub(crate) status: ExitStatus,
+  /// Assertions to be met after executing this command.
+  assertions: Assertions,
 }
 
 impl Command {
   pub fn new(program: impl AsRef<OsStr>, caller_file: impl AsRef<str>, manifest_dir: impl AsRef<str>) -> Self {
     let manifest_path = Path::new(manifest_dir.as_ref());
-    let caller_path = Path::new(caller_file.as_ref())
-      .parent()
-      .expect("failed to retrieve parent directory for caller file");
+    let caller_path = Path::new(caller_file.as_ref()).parent().expect("failed to retrieve parent directory for caller file");
     let current_dir = match manifest_path.rem(caller_path) {
       None => caller_path.into(),
       Some(path_buf) => {
@@ -59,11 +50,7 @@ impl Command {
       stdout: vec![],
       stderr: vec![],
       status: ExitStatus::default(),
-      expected_success: None,
-      expected_failure: None,
-      expected_status: None,
-      expected_stdout: None,
-      expected_stderr: None,
+      assertions: Default::default(),
     }
   }
 
@@ -77,36 +64,13 @@ impl Command {
     self
   }
 
-  pub fn success(mut self) -> Self {
-    self.expected_success = Some(true);
-    self.expected_failure = None;
-    self
-  }
-
-  pub fn failure(mut self) -> Self {
-    self.expected_failure = Some(true);
-    self.expected_success = None;
-    self
-  }
-
-  pub fn code(mut self, code: i32) -> Self {
-    self.expected_status = Some(code);
-    self
-  }
-
   pub fn stdin(mut self, bytes: impl AsRef<[u8]>) -> Self {
     self.stdin = Some(bytes.as_ref().to_vec());
     self
   }
 
-  pub fn stdout(mut self, bytes: impl AsRef<[u8]>) -> Self {
-    self.expected_stdout = Some(bytes.as_ref().to_vec());
-    self
-  }
-
-  pub fn stderr(mut self, bytes: impl AsRef<[u8]>) -> Self {
-    self.expected_stderr = Some(bytes.as_ref().to_vec());
-    self
+  pub fn expect(&mut self) -> &mut Assertions {
+    &mut self.assertions
   }
 
   pub fn spawn(&mut self) {
@@ -135,7 +99,7 @@ impl Command {
     self.stdout = output.stdout;
     self.stderr = output.stderr;
     self.status = output.status;
-    self.assert();
+    self.assertions.assert(self);
   }
 
   pub fn execute(&mut self) {
@@ -177,42 +141,5 @@ impl Command {
 
   pub fn get_status(&self) -> ExitStatus {
     self.status
-  }
-
-  /// Checks all assertions.
-  fn assert(&self) {
-    if let Some(true) = self.expected_success {
-      if !self.status.success() {
-        panic!("expected success");
-      }
-    }
-    if let Some(true) = self.expected_failure {
-      if self.status.success() {
-        panic!("expected failure");
-      }
-    }
-    if let Some(expected) = self.expected_status {
-      let actual = self.status.code().expect("failed to retrieve status code");
-      if actual != expected {
-        println!("\nexpected status code: {}\n  actual status code: {}", expected, actual);
-        panic!("unexpected status");
-      }
-    }
-    if let Some(expected) = &self.expected_stdout {
-      let actual = self.get_stdout_raw();
-      if actual != expected {
-        println!("\nexpected stdout: {:?}\n  actual stdout: {:?}", expected, actual);
-        println!("\n\nexpected stdout: {}\n  actual stdout: {}", bytes_to_str(expected), bytes_to_str(actual));
-        panic!("unexpected stdout");
-      }
-    }
-    if let Some(expected) = &self.expected_stderr {
-      let actual = self.get_stderr_raw();
-      if actual != expected {
-        println!("\nexpected stderr: {:?}\n  actual stderr: {:?}", expected, actual);
-        println!("\n\nexpected stderr: {}\n  actual stderr: {}", bytes_to_str(expected), bytes_to_str(actual));
-        panic!("unexpected stderr");
-      }
-    }
   }
 }

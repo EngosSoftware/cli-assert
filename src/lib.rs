@@ -1,3 +1,4 @@
+mod assertions;
 mod command;
 mod files;
 mod macros;
