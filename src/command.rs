@@ -84,13 +84,28 @@ impl Command {
     self
   }
 
+  pub fn code_fn(mut self, predicate: impl Fn(i32) -> bool + 'static) -> Self {
+    self.assertions.code_fn(predicate);
+    self
+  }
+
   pub fn stdout(mut self, bytes: impl AsRef<[u8]>) -> Self {
     self.assertions.stdout(bytes);
     self
   }
 
+  pub fn stdout_fn(mut self, predicate: impl Fn(Vec<u8>) -> bool + 'static) -> Self {
+    self.assertions.stdout_fn(predicate);
+    self
+  }
+
   pub fn stderr(mut self, bytes: impl AsRef<[u8]>) -> Self {
     self.assertions.stderr(bytes);
+    self
+  }
+
+  pub fn stderr_fn(mut self, predicate: impl Fn(Vec<u8>) -> bool + 'static) -> Self {
+    self.assertions.stderr_fn(predicate);
     self
   }
 
