@@ -61,15 +61,15 @@ impl Assertions {
 
   /// Checks all assertions.
   pub fn assert(&self, command: &crate::Command) {
-    if let Some(true) = self.success {
-      if !command.get_status().success() {
-        panic!("expected success");
-      }
+    if let Some(true) = self.success
+      && !command.get_status().success()
+    {
+      panic!("expected success");
     }
-    if let Some(true) = self.failure {
-      if command.get_status().success() {
-        panic!("expected failure");
-      }
+    if let Some(true) = self.failure
+      && command.get_status().success()
+    {
+      panic!("expected failure");
     }
     if let Some(expected) = self.status {
       let actual = command.get_status().code().expect("failed to retrieve status code");

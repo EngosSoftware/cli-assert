@@ -1,6 +1,6 @@
 [package]
 name = "cli-assert"
-version = "0.1.13-rc.0"
+version = "0.1.13-rc.1"
 authors = ["Dariusz Depta <depta@engos.de>"]
 description = "Testing command-line applications"
 documentation = "https://docs.rs/cli-assert"
@@ -8,7 +8,7 @@ repository = "https://github.com/EngosSoftware/cli-assert.git"
 keywords = ["testing", "command", "line", "applications"]
 categories = ["development-tools::testing"]
 license = "MIT OR Apache-2.0"
-edition = "2021"
+edition = "2024"
 exclude = [
     "rustfmt.toml",
     "Taskfile.yml",
@@ -16,6 +16,3 @@ exclude = [
     ".gitignore",
     "CODE_OF_CONDUCT.md"
 ]
-
-[dependencies]
-tempfile = "3.26.0"

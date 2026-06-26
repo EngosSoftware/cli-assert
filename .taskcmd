@@ -1,0 +1,38 @@
+.tasks
+
+  .all
+    .task clean
+    .task build
+    .task clippy
+    .task fmt
+    .task doc
+
+  .build
+    .desc Builds in debug mode
+    .cmd cargo +stable build
+
+  .clean
+    .desc Cleans all targets
+    .cmd cargo +stable clean
+
+  .clippy
+    .desc Runs clippy for all targets
+    .cmd cargo +stable clippy --all-targets
+
+  .doc
+    .desc Generates documentation
+    .cmd cargo +stable doc --no-deps
+
+  .doc-open
+    .desc Generates documentation and opens it in browser
+    .cmd cargo +stable doc --no-deps --open
+
+  .fmt
+    .desc Runs code formatter
+    .cmd cargo +nightly fmt
+
+  .readme
+    .desc Recreates README file
+          Updates the README file taken from the documentation
+          and then recalculates and updates code coverage stats.
+    .cmd magg readme
